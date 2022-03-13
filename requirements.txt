@@ -10,3 +10,9 @@ uvicorn==0.17.5
 gunicorn==20.1.0
 joblib==1.1.0
 python-multipart
+httptools
+idna
+pydantic
+starlette
+uvloop
+websockets
