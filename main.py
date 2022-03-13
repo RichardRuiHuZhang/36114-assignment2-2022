@@ -19,10 +19,10 @@ api_descripion = """
 """
 
 #Load Model
-model_pipeline = load('../models/test01.joblib')
+model_pipeline = load('models/test01.joblib')
 #model_pipeline = load('G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/test02.joblib')
 #Load Target value transformer
-target_transformer = load('../models/target_decoder.joblib')
+target_transformer = load('models/target_decoder.joblib')
 #target_transformer = load('G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/target_decoder.joblib')
 
 # class beer_data_multiple(BaseModel):
