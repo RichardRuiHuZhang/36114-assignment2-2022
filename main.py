@@ -1,7 +1,7 @@
 #uvicorn main:app --host 127.0.0.1 --port 8080
 #Test name Crow Peak Brewing
 
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, File, UploadFile
 from typing import List
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
@@ -19,18 +19,19 @@ api_descripion = """
 """
 
 #Load Model
-#model_pipeline = load('../models/test01.joblib')
-model_pipeline = load('G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/test02.joblib')
+model_pipeline = load('../models/test01.joblib')
+#model_pipeline = load('G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/test02.joblib')
 #Load Target value transformer
-target_transformer = load('G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/target_decoder.joblib')
+target_transformer = load('../models/target_decoder.joblib')
+#target_transformer = load('G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/target_decoder.joblib')
 
-class beer_data_multiple(BaseModel):
-    brewery: list[str]
-    aroma: list[float]                     
-    appearance: list[float] 
-    palate: list[float] 
-    taste: list[float] 
-    alcohol: list[float]
+# class beer_data_multiple(BaseModel):
+#     brewery: list[str]
+#     aroma: list[float]                     
+#     appearance: list[float] 
+#     palate: list[float] 
+#     taste: list[float] 
+#     alcohol: list[float]
 
 @app.get('/')
 def read_root():
@@ -69,27 +70,8 @@ def predict_single(brewery: str, aroma: float, appearance: float, palate: float,
     return JSONResponse(pred_name.tolist())
 
 @app.post('/beers/type')
-# def read_multiple(beers_data: beer_data_multiple):
-#     return beers_data
-
-# def predict_multiple(beers_data: beer_data_multiple):
-#     #features = format_features_multiple(beers_data)
-#     obs = pd.DataFrame(beers_data)
-#     pred = model_pipeline.predict(obs)
-#     pred_name = target_transformer.inverse_transform(pred)
-#     return JSONResponse(pred_name.tolist())
-def predict_multiple(brewery: str=Form(...), aroma: float=Form(...), appearance: float=Form(...), palate: float=Form(...), taste: float=Form(...), alcohol: float=Form(...)):
-     features = format_features_multiple(brewery, aroma, appearance, palate, taste, alcohol)
-     obs = pd.DataFrame(features)
-     pred = model_pipeline.predict(obs)
-     pred_name = target_transformer.inverse_transform(pred)
-     return JSONResponse(pred_name.tolist())
-
-
-# @app.post('/beers/type')
-# def display_results(pred_name):
-#     features = format_features_multiple(beers_data)
-#     obs = pd.DataFrame(beers_data)
-#     pred = model_pipeline.predict(obs)
-#     pred_name = target_transformer.inverse_transform(pred)
-#     return JSONResponse(pred_name.tolist())
+def predict_multiple(beers_data_csv: UploadFile = File(...)):
+    obs = pd.read_csv(beers_data_csv.file)
+    pred = model_pipeline.predict(obs)
+    pred_name = target_transformer.inverse_transform(pred)
+    return JSONResponse(pred_name.tolist())

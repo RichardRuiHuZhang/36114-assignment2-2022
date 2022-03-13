@@ -29,8 +29,6 @@ df_data_reduced2 = df_data_reduced1.copy()
 
 df_data_reduced1[df_data_reduced1.isnull().any(axis=1)]
 
-factor_encoder = OrdinalEncoder()
-df_data_reduced2['brewery_name_code'] = factor_encoder.fit_transform(df_data_reduced2[factor_cols])
 
 # df_data_reduced3 = df_data_reduced1.copy()
 # # factor_encoder = OneHotEncoder(sparse=False, handle_unknown='ignore')
