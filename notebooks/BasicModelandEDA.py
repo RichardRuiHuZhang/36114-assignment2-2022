@@ -103,3 +103,31 @@ g1 = pd.DataFrame(format_features('Crow Peak Brewing',1.5,2.5,4.0,5.5,6.0))
 y_pred = model_pipeline.predict(g1)
 
 y_pred_name = target_encoder.inverse_transform(y_pred)
+
+
+from src.models.null import NullModel
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test = train_test_split(df_data_reduced2, target_out, test_size=0.2, random_state=42)
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class LogisticRegressionModel(nn.Module):
+    def __init__(self, input_dim):
+       super(LogisticRegressionModel,self).__init__()
+       
+       self.layer_1 = nn.Linear(input_dim, 128)
+       self.layer_out = nn.Linear(128, 1)
+       
+    def forward(self, x):
+        x = F.relu(self.layer1(x))
+        x = F.sigmoid(self.layer2(x))
+        return x
+
+model = LogisticRegressionModel()
+model.train() #set model to training mode
+y_preds = model(X_train) #forward pass or prediction
+
