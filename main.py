@@ -19,7 +19,7 @@ api_descripion = """
 """
 
 #Load Model
-model_pipeline = load('models/test01.joblib')
+model_pipeline = load('models/test02.joblib')
 #model_pipeline = load('G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/test02.joblib')
 #Load Target value transformer
 target_transformer = load('models/target_decoder.joblib')
@@ -48,7 +48,7 @@ def format_features_single(brewery: str, aroma: float, appearance: float, palate
         'review_appearance': [appearance],
         'review_palate': [palate],
         'review_taste': [taste],
-        'beer_abv':[alcohol]
+        'beer_abv': [alcohol]
     }
 
 def format_features_multiple(brewery, aroma, appearance, palate, taste, alcohol):
@@ -63,7 +63,7 @@ def format_features_multiple(brewery, aroma, appearance, palate, taste, alcohol)
 
 @app.get('/beer/type')
 def predict_single(brewery: str, aroma: float, appearance: float, palate: float, taste: float, alcohol: float):
-    features = format_features_single(brewery,	aroma, appearance, palate, taste, alcohol)
+    features = format_features_single(brewery, aroma, appearance, palate, taste, alcohol)
     obs = pd.DataFrame(features)
     pred = model_pipeline.predict(obs)
     pred_name = target_transformer.inverse_transform(pred)
