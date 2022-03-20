@@ -1,13 +1,13 @@
 36114-Assignment2-2022
 ==============================
 
-Richard Rui Hu Zhang assignment 2 code. To run the codes:
+Richard Rui Hu Zhang assignment 2 code.
+To run the codes:
+1. Create a data/raw sub-folder.
+2. Add the raw CSV file beer_reviews.csv to this sub-folder
+3. Run the code.
 
-    Create a data/raw sub-folder.
-    Add the raw CSV file beer_reviews.csv to this sub-folder
-    Run the code.
-
-Heroku app link: https://ruihuzhang-36114-assignment2.herokuapp.com/
+Heroku app link: https://ruihuzhang-36114-assignment2.herokuapp.com/ 
 
 Project Organization
 ------------
