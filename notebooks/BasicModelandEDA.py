@@ -203,7 +203,10 @@ model_pipeline = Pipeline(
     ]
 )
 
-X1, X2, y1, y2 = train_test_split(df_data_reduced2, target_out, train_size=0.7, random_state=42)
+df_data_reduced3=df_data_reduced1.copy()
+df_data_reduced3=df_data_reduced3.dropna()
+df_data_reduced3.pop('beer_style')
+X1, X2, y1, y2 = train_test_split(df_data_reduced3, target_out, train_size=0.7, random_state=42)
 
 model_pipeline.fit(X1,y1)
 bbba = model_pipeline.predict(X2)
@@ -220,6 +223,12 @@ bbbb = model_pipeline.predict(x3)
 #dump(model_pipeline,'G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/test02.joblib')
 dump(model_pipeline,'G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/pipeline.joblib')
 
+dump(model,'G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/logreg_base.joblib')
+dump(model3,'G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/nn_sklearn_base.joblib')
+dump(model2,'G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/randfor_base.joblib')
+dump(clf1,'G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/randfor_grid1.joblib')
+dump(clf2,'G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/randfor_grid2.joblib')
+dump(clf3,'G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/randfor_grid3.joblib')
 
 model0 = model_pipeline.fit(X_train,y_train)
 aaa = model0.predict(X_test)

@@ -200,9 +200,9 @@ def training_loop(model,num_epochs,batch_size):
         print('Epoch: %5s, Train Loss: %6f, Validation Loss: %6f, Accuracy: %6f\n' %(str(epoch), training_loss, validation_loss, accuracy))
     return model        
 
-train_data = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-val_data = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
-test_data = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+train_data = DataLoader(train_dataset, batch_size=batch_size_train, shuffle=True)
+val_data = DataLoader(val_dataset, batch_size=batch_size_val, shuffle=True)
+test_data = DataLoader(test_dataset, batch_size=batch_size_test, shuffle=True)
 
 def prediction_generation(model,test_data,batch_size):
     model.eval()
@@ -223,18 +223,26 @@ y_pred_nnlogreg1_val = prediction_generation(model1,val_data,batch_size=batch_si
 y_pred_nnlogreg1_test = prediction_generation(model1,test_data,batch_size=batch_size_test)
 
 acc_nnlogreg1_train = accuracy_score(y_train,y_pred_nnlogreg1_train.numpy())
+acc_nnlogreg1_val = accuracy_score(y_val,y_pred_nnlogreg1_val.numpy())
+acc_nnlogreg1_test = accuracy_score(y_test,y_pred_nnlogreg1_test.numpy())
 
 model2 = training_loop(model2,num_epochs=num_epochs,batch_size=batch_size)
 y_pred_nnlogreg2_train = prediction_generation(model2,train_data,batch_size=batch_size_train)
 y_pred_nnlogreg2_val = prediction_generation(model2,val_data,batch_size=batch_size_val)
 y_pred_nnlogreg2_test = prediction_generation(model2,test_data,batch_size=batch_size_test)
 
-
+acc_nnlogreg2_train = accuracy_score(y_train,y_pred_nnlogreg2_train.numpy())
+acc_nnlogreg2_val = accuracy_score(y_val,y_pred_nnlogreg2_val.numpy())
+acc_nnlogreg2_test = accuracy_score(y_test,y_pred_nnlogreg2_test.numpy())
 
 model3 = training_loop(model3,num_epochs=num_epochs,batch_size=batch_size)
 y_pred_nn3_train = prediction_generation(model3,train_data,batch_size=batch_size_train)
 y_pred_nn3_val = prediction_generation(model3,val_data,batch_size=batch_size_val)
 y_pred_nn3_test = prediction_generation(model3,test_data,batch_size=batch_size_test)
+
+acc_nn3_train = accuracy_score(y_train,y_pred_nn3_train.numpy())
+acc_nn3_val = accuracy_score(y_val,y_pred_nn3_val.numpy())
+acc_nn3_test = accuracy_score(y_test,y_pred_nn3_test.numpy())
 
 g = y_pred_nn3.numpy()
 
