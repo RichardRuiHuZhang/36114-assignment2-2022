@@ -127,8 +127,6 @@ class LogisticRegressionModel2(nn.Module):
 class DeepNeuralNet1(nn.Module):
     def __init__(self, input_dim):
       super(DeepNeuralNet1,self).__init__()
-      hidden_1 = 512
-      hidden_2 = 512
       self.fc1 = nn.Linear(input_dim, 512)
       self.fc2 = nn.Linear(512,512)
       self.fc3 = nn.Linear(512,103)
@@ -158,12 +156,14 @@ batch_size_test = y_test.shape[0]
 num_epochs = 50
 batch_size = 100
 batch_size_test = y_test.shape[0]
+batch_size_train = y_train.shape[0]
+batch_size_val = y_val.shape[0]
 learning_rate = 0.01
 
 
 criterion = nn.CrossEntropyLoss()
 
-optimizer = torch.optim.SGD(lr =learning_rate)
+optimizer = torch.optim.SGD(model1.parameters(),lr =learning_rate)
 
 def training_loop(model,num_epochs,batch_size):
     for epoch in range(num_epochs): # monitoring the losses
@@ -200,12 +200,14 @@ def training_loop(model,num_epochs,batch_size):
         print('Epoch: %5s, Train Loss: %6f, Validation Loss: %6f, Accuracy: %6f\n' %(str(epoch), training_loss, validation_loss, accuracy))
     return model        
 
+train_data = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+val_data = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
+test_data = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
-
-def prediction_generation(model,batch_size):
+def prediction_generation(model,test_data,batch_size):
     model.eval()
     testing_loss = 0.0
-    test_data = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+    
     for batch_idx, (data,label) in enumerate(test_data):
         output = model(data) 
         label = label.to(torch.long)
@@ -216,13 +218,23 @@ def prediction_generation(model,batch_size):
     return predictions
 
 model1 = training_loop(model1,num_epochs=num_epochs,batch_size=batch_size)
-y_pred_nnlogreg1 = prediction_generation(model1,batch_size=batch_size_test)
+y_pred_nnlogreg1_train = prediction_generation(model1,train_data,batch_size=batch_size_train)
+y_pred_nnlogreg1_val = prediction_generation(model1,val_data,batch_size=batch_size_val)
+y_pred_nnlogreg1_test = prediction_generation(model1,test_data,batch_size=batch_size_test)
+
+acc_nnlogreg1_train = accuracy_score(y_train,y_pred_nnlogreg1_train.numpy())
 
 model2 = training_loop(model2,num_epochs=num_epochs,batch_size=batch_size)
-y_pred_nnlogreg2 = prediction_generation(model2,batch_size=batch_size_test)
+y_pred_nnlogreg2_train = prediction_generation(model2,train_data,batch_size=batch_size_train)
+y_pred_nnlogreg2_val = prediction_generation(model2,val_data,batch_size=batch_size_val)
+y_pred_nnlogreg2_test = prediction_generation(model2,test_data,batch_size=batch_size_test)
+
+
 
 model3 = training_loop(model3,num_epochs=num_epochs,batch_size=batch_size)
-y_pred_nn3 = prediction_generation(model3,batch_size=batch_size_test)
+y_pred_nn3_train = prediction_generation(model3,train_data,batch_size=batch_size_train)
+y_pred_nn3_val = prediction_generation(model3,val_data,batch_size=batch_size_val)
+y_pred_nn3_test = prediction_generation(model3,test_data,batch_size=batch_size_test)
 
 g = y_pred_nn3.numpy()
 

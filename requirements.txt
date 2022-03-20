@@ -9,7 +9,6 @@ fastapi==0.75.0
 uvicorn==0.17.5
 gunicorn==20.1.0
 joblib==1.1.0
-torch
 category_encoders
 python-multipart
 httptools

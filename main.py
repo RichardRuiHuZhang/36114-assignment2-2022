@@ -1,17 +1,7 @@
-#uvicorn main:app --host 127.0.0.1 --port 8080
-#Test name Crow Peak Brewing
-
 from fastapi import FastAPI, File, UploadFile, Query
-from typing import List
-from pydantic import BaseModel
 from starlette.responses import JSONResponse
 from joblib import load
 import pandas as pd
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-#if __name__ == '__main__':
-from src import DeepNeuralNet1
 
 app = FastAPI()
 
@@ -40,36 +30,10 @@ API_text = """
 
 """
 
-# class DeepNeuralNet1(nn.Module):
-#     def __init__(self, input_dim):
-#       super(DeepNeuralNet1,self).__init__()
-#       hidden_1 = 512
-#       hidden_2 = 512
-#       self.fc1 = nn.Linear(input_dim, 512)
-#       self.fc2 = nn.Linear(512,512)
-#       self.fc3 = nn.Linear(512,103)
-#       self.droput = nn.Dropout(0.2)
-        
-#     def forward(self,x):
-#           x = F.relu(self.fc1(x))
-#           x = self.droput(x)
-#           x = F.relu(self.fc2(x))
-#           x = self.droput(x)
-#           x = self.fc3(x)
-#           return x
-    
-#model_ML = DeepNeuralNet1(input_dim=1)
-
 #Load Model
-#model_pipeline = load('models/test02.joblib')
 model_pipeline = load('models/pipeline.joblib')
-#model_pipeline = load('G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/test02.joblib')
-model_ML = torch.load('models/NN01.pt')
-#model_ML = torch.load('G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/NN01.pt')
 #Load Target value transformer
 target_transformer = load('models/target_decoder.joblib')
-#target_transformer = load('G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/target_decoder.joblib')
-
 
 @app.get('/')
 def read_root():
@@ -113,11 +77,7 @@ def predict_single(brewery: str,
                    alcohol: float= Query(..., title="Alcohol content as percentage", gt=0, le=100)):
     features = format_features_single(brewery, aroma, appearance, palate, taste, alcohol)
     obs = pd.DataFrame(features)
-    #pred = model_pipeline.predict(obs)
-    obs_fitted = model_pipeline.predict(obs)
-    model_ML.eval()
-    pred = model_ML(obs_fitted)
-    pred = pred.numpy()
+    pred = model_pipeline.predict(obs)
     pred_name = target_transformer.inverse_transform(pred)
     return JSONResponse(pred_name.tolist())
 
@@ -126,11 +86,7 @@ def predict_multiple(beers_data_csv: UploadFile = File(...)):
     obs = pd.read_csv(beers_data_csv.file)
     iErr = check_data_validity(obs)
     if iErr == 0:
-        #pred = model_pipeline.predict(obs)
-        obs_fitted = model_pipeline.predict(obs)
-        model_ML.eval()
-        pred = model_ML(obs_fitted)
-        pred = pred.numpy()
+        pred = model_pipeline.predict(obs)
     else:
         pred = pd.zeros(obs.shape[1])
     pred_name = target_transformer.inverse_transform(pred)    

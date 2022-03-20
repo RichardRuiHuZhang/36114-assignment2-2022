@@ -45,27 +45,28 @@ abcde= proba_to_class(logreg.predict_proba(X_train))
 ad = logreg.predict_proba(X_train)
 ab = np.amax(logreg.predict_proba(X_train), axis=1)
 ae = (ad == ab)
-#df_data_reduced1['brewery_name'] = df_data_reduced1['brewery_name'].fillna('n/a')
-#df_data_reduced1['beer_abv'] = df_data_reduced1['beer_abv'].fillna(0.0)
 
 df_data_reduced1[df_data_reduced1.isnull().any(axis=1)]
 df_data_reduced2[df_data_reduced1.isnull().any(axis=1)]
 
 
-# df_data_reduced3 = df_data_reduced1.copy()
-# # factor_encoder = OneHotEncoder(sparse=False, handle_unknown='ignore')
-# # df_data_reduced3[factor_cols] = factor_encoder.fit_transform(df_data_reduced3[factor_cols])
-# factor_encoder = LabelEncoder()
-# df_data_reduced3['brewery_name_code'] = factor_encoder.fit_transform(df_data_reduced3[factor_cols])
-
 factor_encoder = OrdinalEncoder()
 df_data_reduced2[factor_cols] = factor_encoder.fit_transform(df_data_reduced2[factor_cols])
 
-# target = df_data_reduced3.pop('beer_style')
+numerical_encoder = MinMaxScaler()
+df_data_reduced2[numerical_cols] = numerical_encoder.fit_transform(df_data_reduced2[numerical_cols])
+
 target_encoder = LabelEncoder()
 target_out = target_encoder.fit_transform(target)
-#brewery_name_list = df_data_reduced3.pop('brewery_name')
-logreg = LogisticRegression(max_iter=10000)
+
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(df_data_reduced2, target_out, train_size=0.7, random_state=42)
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, train_size=0.7, random_state=42)
+
+
+logreg = LogisticRegression(max_iter=500)
 model = logreg.fit(X_train,y_train)
 y_pred_train = proba_to_class(model.predict_proba(X_train))
 y_pred_val = proba_to_class(model.predict_proba(X_val))
@@ -102,11 +103,61 @@ acc_rf_train = accuracy_score(y_train,y_pred_train_rf)
 acc_rf_val = accuracy_score(y_val,y_pred_val_rf)
 acc_rf_test = accuracy_score(y_test,y_pred_test_rf)
 
-
-numerical_encoder = MinMaxScaler()
-df_data_reduced2[numerical_cols] = numerical_encoder.fit_transform(df_data_reduced2[numerical_cols])
-
 dump(target_encoder,'G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/target_decoder.joblib')
+
+dump(model2,'../models/rand_for01.joblib')
+
+from sklearn.neural_network import MLPClassifier
+hidden_layer_sizes=512
+nn_classifier_model = MLPClassifier(hidden_layer_sizes=hidden_layer_sizes, solver='sgd', learning_rate='adaptive', random_state=42)
+model3 = nn_classifier_model.fit(X_train,y_train)
+
+y_pred_train_nn01 = proba_to_class(model3.predict_proba(X_train))
+y_pred_val_nn01 = proba_to_class(model3.predict_proba(X_val))
+y_pred_test_nn01 = proba_to_class(model3.predict_proba(X_test))
+
+acc_nn01_train = accuracy_score(y_train,y_pred_train_nn01)
+acc_nn01_val = accuracy_score(y_val,y_pred_val_nn01)
+acc_nn01_test = accuracy_score(y_test,y_pred_test_nn01)
+
+from sklearn.model_selection import GridSearchCV
+randfor2 = RandomForestClassifier(random_state=42)
+max_depth = np.arange(start=2,stop=8)
+param_grid1 = {'max_depth':max_depth}
+cv = 10
+scoring = 'accuracy'
+
+clf1 = GridSearchCV(estimator=randfor2,param_grid=param_grid1,cv=cv,scoring=scoring,return_train_score=True,verbose=3)
+clf1.fit(X_train,y_train)
+clf1.best_estimator_
+clf1.score(X_train, y_train)
+clf1.score(X_val, y_val)
+clf1.score(X_test, y_test)
+clf1.cv_results_.keys()
+
+randfor3 = RandomForestClassifier(random_state=42,max_depth=7)
+min_samples_split = np.linspace(start=2, stop=256, num=5).astype(int)
+param_grid2 = {'min_samples_split':min_samples_split}
+
+clf2 = GridSearchCV(estimator=randfor3,param_grid=param_grid2,cv=cv,scoring=scoring,return_train_score=True,verbose=3)
+clf2.fit(X_train,y_train)
+clf2.best_estimator_
+clf2.score(X_train, y_train)
+clf2.score(X_val, y_val)
+clf2.score(X_test, y_test)
+clf2.cv_results_.keys()
+
+randfor4 = RandomForestClassifier(random_state=42,max_depth=7,min_samples_split=65)
+n_estimators = np.linspace(start=2, stop=256, num=5).astype(int)
+param_grid3 = {'n_estimators':n_estimators}
+
+clf3 = GridSearchCV(estimator=randfor4,param_grid=param_grid3,cv=cv,scoring=scoring,return_train_score=True,verbose=3)
+clf3.fit(X_train,y_train)
+clf3.best_estimator_
+clf3.score(X_train, y_train)
+clf3.score(X_val, y_val)
+clf3.score(X_test, y_test)
+clf3.cv_results_.keys()
 
 # model.coef_
 
@@ -118,15 +169,15 @@ dump(target_encoder,'G:/Data Science/UTS Courses/36114 Advanced Data Science for
 # out_text = target_encoder.inverse_transform(out)
 
 # Model pipeline setup
-cat_var_transformer = Pipeline(
+num_var_transformer = Pipeline(
     steps=[
-        ('brewery_name_encoder', MinMaxScaler())
+        ('beer_measures_encoder', MinMaxScaler())
     ]
 )
 
-num_var_transformer = Pipeline(
+cat_var_transformer = Pipeline(
     steps=[
-        ('beer_measures_encoder', OrdinalEncoder())
+        ('brewery_name_encoder', OrdinalEncoder())
     ]
 )
 
@@ -148,11 +199,23 @@ preprocessor = ColumnTransformer(
 model_pipeline = Pipeline(
     steps=[
         ('preprocessor', preprocessor),
-        #('log_regression', LogisticRegression(max_iter=10000))
+        ('randfor', RandomForestClassifier(random_state=42,max_depth=7,min_samples_split=65,n_estimators=256))
     ]
 )
 
-model_pipeline.fit(df_data_reduced2,target_out)
+X1, X2, y1, y2 = train_test_split(df_data_reduced2, target_out, train_size=0.7, random_state=42)
+
+model_pipeline.fit(X1,y1)
+bbba = model_pipeline.predict(X2)
+data = {'brewery_name': ['Vecchio Birraio'],
+'review_aroma': [1.0],
+'review_appearance': [2.0],
+'review_palate': [3.0],
+'review_taste': [4.5],
+'beer_abv':[5.0]}
+x3= pd.DataFrame(data)
+
+bbbb = model_pipeline.predict(x3)
 
 #dump(model_pipeline,'G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/test02.joblib')
 dump(model_pipeline,'G:/Data Science/UTS Courses/36114 Advanced Data Science for Innovation/Assignment2/36114-assignment2-2022/models/pipeline.joblib')
@@ -179,10 +242,6 @@ y_pred = model_pipeline.predict(g1)
 
 y_pred_name = target_encoder.inverse_transform(y_pred)
 
-from sklearn.model_selection import train_test_split
-
-X_train, X_test, y_train, y_test = train_test_split(df_data_reduced2, target_out, train_size=0.7, random_state=42)
-X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, train_size=0.7, random_state=42)
 
 import torch
 import torch.nn as nn
